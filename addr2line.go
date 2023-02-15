@@ -114,9 +114,11 @@ func workload(context *Context, insert_func ins_f) {
 			rs, _ := context.a2l.Resolve(e.Addr2ln_offset)
 			context.mu.Unlock()
 			if len(rs) == 0 {
+				Debug("workload: ", e.Query_str, "NONE")
 				qready = fmt.Sprintf(e.Query_str, "NONE")
 			}
 			for _, a := range rs {
+				Debug("workload: ", e.Query_str, filepath.Clean(a.File))
 				qready = fmt.Sprintf(e.Query_str, filepath.Clean(a.File))
 				if a.Function == strings.ReplaceAll(e.Addr2ln_name, "sym.", "") {
 					break
@@ -135,20 +137,28 @@ func Generate_Query_Str(Q_WL *Workload) error {
 	switch arg := (*Q_WL).Query_args.(type) {
 	case Insert_Instance_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[0], arg.Version, arg.Patchlevel, arg.Sublevel, arg.Extraversion, arg.Note)
+		Debug("Generate_Query_Str: Insert_Instance_Args: ", (*Q_WL).Query_str)
 	case Insert_Config_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[1], arg.Config_key, arg.Config_val, arg.Instance_no)
+		Debug("Generate_Query_Str: Insert_Config_Args: ", (*Q_WL).Query_str)
 	case Insert_Files_Ind_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[2], arg.Id)
+		Debug("Generate_Query_Str: Insert_Files_Ind_Args: ", (*Q_WL).Query_str)
 	case Insert_Symbols_Ind_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[3], arg.Id)
+		Debug("Generate_Query_Str: Insert_Symbols_Ind_Args: ", (*Q_WL).Query_str)
 	case Insert_Tags_Ind_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[4], arg.Id)
+		Debug("Generate_Query_Str: Insert_Tags_Ind_Args: ", (*Q_WL).Query_str)
 	case Insert_Symbols_Files_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[5], arg.Id, arg.Symbol_Name, arg.Symbol_Offset, arg.Symbol_Type)
+		Debug("Generate_Query_Str: Insert_Symbols_Files_Args: ", (*Q_WL).Query_str)
 	case Insert_Xrefs_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[6], arg.Caller_Offset, arg.Callee_Offset, arg.Id, arg.Source_line, arg.Calling_Offset)
+		Debug("Generate_Query_Str: Insert_Xrefs_Args: ", (*Q_WL).Query_str)
 	case Insert_Tags_Args:
 		(*Q_WL).Query_str = fmt.Sprintf(Query_fmts[7], arg.addr2line_prefix)
+		Debug("Generate_Query_Str: Insert_Tags_Args: ", (*Q_WL).Query_str)
 	default:
 		err = errors.New("GENERATE_QUERY: Unknown workload argument")
 	}
@@ -162,10 +172,12 @@ func query_mgmt(ctx *Context, Q_WL *Workload) error {
 	case GENERATE_QUERY:
 		err = Generate_Query_Str(Q_WL)
 	case EXECUTE_QUERY_ONLY:
+		Debug("query_mgmt: Pushing ", fmt.Sprintf("%#v", *Q_WL))
 		(*ctx).ch_workload <- *Q_WL
 	case GENERATE_QUERY_AND_EXECUTE, GENERATE_QUERY_AND_EXECUTE_W_A2L:
 		err = Generate_Query_Str(Q_WL)
 		if err == nil {
+			Debug("query_mgmt: Pushing ", fmt.Sprintf("%#v", *Q_WL))
 			(*ctx).ch_workload <- *Q_WL
 		}
 	default:

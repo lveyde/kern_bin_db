@@ -75,6 +75,7 @@ func Connect_db(t *Connect_token) *sql.DB {
 // Executes insert queries
 func Insert_data(context *Context, query string) {
 
+	Debug("Insert_data: ", query)
 	_, err := (*context).DB.Exec(query)
 	if err != nil {
 		fmt.Println("##################################################")
@@ -88,6 +89,7 @@ func Insert_data(context *Context, query string) {
 func Insert_datawID(context *Context, query string) int {
 	var res int
 
+	Debug("Insert_datawID", query)
 	rows, err := (*context).DB.Query(query)
 	if err != nil {
 		fmt.Println("##################################################")

@@ -255,6 +255,7 @@ func Getxrefs(r2p *r2.Pipe, current uint64, indcall []uint64, funcs []func_data,
 	if error != nil {
 		fmt.Printf("Error while parsing data: %s", error)
 	}
+	Debug("Getxrefs:", FormatStruct(&xrefs))
 
 	blocs := get_func_space(r2p, current, funcs)
 	for _, ic := range indcall {
@@ -396,6 +397,7 @@ func get_all_funcdata(r2p *r2.Pipe) []func_data {
 		}
 	}
 	sort.SliceStable(functions, func(i, j int) bool { return functions[i].Offset < functions[j].Offset })
+	Debug("get_all_funcdata:", FormatStruct(&functions))
 	return functions
 }
 

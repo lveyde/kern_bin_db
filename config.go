@@ -83,6 +83,7 @@ func cmd_line_item_init() []cmd_line_items {
 	push_cmd_line_item("-d", "Forces to use a specified DB DSN", true, func_DBDSN, &res)
 	push_cmd_line_item("-n", "Forecs use specified note (default 'upstream')", true, func_Note, &res)
 	push_cmd_line_item("-c", "Checks dependencies", false, func_check, &res)
+	push_cmd_line_item("--debug", "Enable debug mode", false, func_Debug, &res)
 	push_cmd_line_item("-h", "This Help", false, func_help, &res)
 
 	return res
@@ -123,6 +124,11 @@ func func_DBDSN(conf *configuration, db_dsn []string) error {
 
 func func_Note(conf *configuration, note []string) error {
 	(*conf).Note = note[0]
+	return nil
+}
+
+func func_Debug(conf *configuration, dummy []string) error {
+	debugEnabled = true
 	return nil
 }
 
